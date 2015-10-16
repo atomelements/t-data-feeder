@@ -1,0 +1,20 @@
+<link rel="import" href="../t-data-feeder.html">
+<link rel="import" href="../../t-radio-group/t-radio-group.html">
+  
+<style>
+	.test{
+		margin:40px;
+	}
+</style>
+        <t-radio-group required label="Select one">
+          
+        </t-radio-group>
+
+<div class="test">
+	
+<t-data-feeder id="x"></t-data-feeder>
+</div>
+
+<script>
+	document.querySelector('#x').target = document.querySelector('t-radio-group');
+</script>
