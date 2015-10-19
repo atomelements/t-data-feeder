@@ -28,7 +28,7 @@
     "iron-icon": "PolymerElements/iron-icon#1.0.4",
     "iron-icons": "PolymerElements/iron-icons#1.0.3",
     "iron-list": "PolymerElements/iron-list#1.1.0",
-    "t-input": "atomproject/t-input#0.0.0", 
+    "t-input": "atomelements/t-input#0.0.0", 
     "polymer": "Polymer/polymer#^1.0.0"
   },
   "devDependencies": {
