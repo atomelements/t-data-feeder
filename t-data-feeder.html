@@ -1,160 +1,77 @@
 <link rel="import" href="../polymer/polymer.html" />
-<link rel="import" href="../t-input/t-input.html" />
-<link rel="import" href="../iron-list/iron-list.html" />
 <link rel="import" href="../iron-icon/iron-icon.html" />
 <link rel="import" href="../iron-icons/iron-icons.html" />
-<!--
-    `<t-data-feeder>` is a polymer component that generates a playground for interacting with components.
+<link rel="import" href="./t-data-list.html" />
 
-    <div class="demo-canvas">
-        
-    </div>
-
-    <t-data-feeder metadata-source="metadata url" property-source="property url" component="component name">
-        
-        <div class="component">
-            
-            'component template'
-        </div>
-    </t-data-feeder>        
--->
 <dom-module id="t-data-feeder">
-    <style is="custom-style">
-    .entry .close {
-        display: none;
-    }
-    
-    .entry:focus {
-        border: solid 1px red;
-    }
-    
-    .entry:hover .close {
-        display: block;
-    }
-    </style>
     <template>
-        <div>{{label}}</div>
-        <iron-list items="[[data]]" has-scroller="false" as="item">
-            <template>
-                <div class="entry layout horizontal" data-index$="{{index}}" spellcheck="true" tabIndex$="{{index}}" contentEditable='true' on-keyup="_contentChanged">
-                    <!--        <template is="dom-if" if="[[_parameterPresent]]">
-                        <div class="flex">{{_getValue(data,item)}}</div>
-                    </template> -->
-                    <div class="flex">{{item}}</div>
-                    <iron-icon class="close" icon="close" data-index$="{{index}}" on-click="_removeItem"></iron-icon>
-                </div>
-            </template>
-        </iron-list>
-        <div class="layout horizontal">
-            <input id="input" class="flex" placeholder="List item" autocomplete="off" on-keyup="_onKeyPressed">
-        </div>
+        <style>
+            label {
+                color: #777777;
+                font-size: 16px;
+            }
+
+            t-data-list {
+                margin-top: 10px;
+            }
+        </style>
+        <label>{{label}}</label>
+        <t-data-list id="data" on-data-changed="updateTarget" data='["First Choice", "Second Choice", "Third Choice"]'></t-data-list>
     </template>
+    <script>
+        Polymer({
+
+            is: 't-data-feeder',
+
+            properties: {
+                target: {
+                    type: Object,
+                    value: function() {
+                        return [];
+                    }
+                },
+
+                label: {
+                    type: String,
+                    value: 'Add items'
+                },
+
+                _parameterPresent: {
+                    type: Boolean,
+                    value: false
+                },
+
+                parameter: {
+                    type: String,
+                    value: "",
+                    notify: true,
+                    observer: '_parameterChanged'
+                }
+            },
+
+            _parameterChanged: function() {
+                if (this.parameter == '') {
+                    this.parameter = 'data';
+                } else {
+                    this._parameterPresent = true;
+                }
+            },
+
+            _getValue: function(data, item) {
+                return item[this.parameter];
+            },
+
+            updateTarget: function() {
+                var data;
+
+                if (!this.target) {
+                    return;
+                }
+
+                data = this.$.data.get('data')
+                this.target.setAttribute(this.parameter, JSON.stringify(data));
+                this.fire('property-changed', this.target);
+            }
+        });
+    </script>
 </dom-module>
-<script>
-Polymer({
-
-    is: 't-data-feeder',
-
-    properties: {
-
-        data: {
-            type: Array,
-            value: function() {
-                return [];
-            }
-        },
-
-        target: {
-            type: Object,
-            value: function() {
-                return [];
-            }
-        },
-
-        label: {
-            type: String,
-            value: 'Add items'
-        },
-
-        _parameterPresent: {
-            type: Boolean,
-            value: false
-        },
-
-        parameter: {
-            type: String,
-            value: "",
-            notify: true,
-            observer: '_parameterChanged'
-        }
-    },
-
-    _onKeyPressed: function(e) {
-        if (e.keyCode == 13 && this.$.input.value != '') {
-            this.push('data', this.$.input.value);
-            this.target.setAttribute(this.parameter, JSON.stringify(this.data));
-            e.stopPropagation();
-            this.fire('property-changed', {
-                target: this.target,
-                value: this.$.input.value
-            });
-            this.$.input.value = '';
-        } else {
-            // if (e.keyCode == 38 || e.keyCode == 40) {
-            //     this._moveUpAndDown(e);
-            // }
-        }
-    },
-
-    _moveUpAndDown: function(e) {
-        var tabIndex = e.target.parentElement.getAttribute('tabIndex');
-        if (e.keyCode == 38) {
-            tabIndex = tabIndex - 1;
-        } else {
-            tabIndex = tabIndex + 1;
-
-        }
-        var elems = this.querySelectorAll(".entry");
-
-        for (var i = elems.length; i--;) {
-            var tidx2 = elems[i].getAttribute('tabindex');
-            if (tidx2 == tabIndex) {
-                elems[i].focus();
-                elems[i].style.backgroundColor = '#68F';
-            }
-        }
-    },
-
-    _contentChanged: function(e) {
-        if (e.keyCode == 38 || e.keyCode == 40) {
-            // this._moveUpAndDown(e);
-        }
-        if (e.keyCode == 13)
-            this.$.input.focus();
-        var index = event.target.getAttribute('data-index');
-        var value =
-            this.data[index] = event.target.textContent.trim();
-        this.target.setAttribute(this.parameter, JSON.stringify(this.data));
-        this.fire('property-changed');
-    },
-
-    _removeItem: function(event) {
-        var index = event.target.getAttribute('data-index');
-        this.splice(this.parameter, index, 1);
-        this.target.setAttribute(this.parameter, JSON.stringify(this.data));
-        this.fire('property-changed', this.target);
-    },
-
-    _parameterChanged: function() {
-        if (this.parameter == '') {
-            this.parameter = 'data';
-        } else {
-            this._parameterPresent = true;
-        }
-    },
-
-    _getValue: function(data, item) {
-        return item[this.parameter];
-    }
-})
-</script>
