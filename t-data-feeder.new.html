@@ -1,0 +1,169 @@
+<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../iron-icon/iron-icon.html" />
+<link rel="import" href="../iron-icons/iron-icons.html" />
+
+<!-- TODO: Autofocus some item -->
+<dom-module id="t-data-feeder">
+	<template>
+		<style>
+			:host {
+			    display: flex;
+			    flex-direction: column;
+			    max-width: 600px;
+			    margin: auto;
+			}
+
+			.item {
+				padding: 5px;
+			    display: flex;
+			    align-items: center;
+			}
+
+			.item span {
+				flex-basis: 95%;
+			}
+
+			.item iron-icon {
+				color: gray;
+				opacity: 0;
+				cursor: pointer;
+			}
+
+			.item iron-icon:hover, .item iron-icon:focus {
+				color: black;
+				opacity: 1;
+			}
+
+			.item:focus iron-icon, .item:hover iron-icon {
+				opacity: 1;
+			}
+
+			#input {
+				position: relative;
+				color: rgba(100, 100, 100, 0.9);
+			}
+
+			.item .text {
+				position: absolute;
+				top: 0;
+				left: 0;
+				height: 100%;
+				width: 100%;
+			}
+
+			.item .text div {
+			    width: 100%;
+			    height: 100%;
+			    padding: 10px;
+			    box-sizing: border-box;
+			}
+		</style>
+
+		<template is="dom-repeat" items={{data}} 
+			as={{item}} index-as={{index}}>
+
+		    <div class="item" contentEditable tabindex="0">
+		    	<span>{{item}}</span>
+		        <iron-icon class="" icon="icons:cancel" tabindex="0"></iron-icon>
+		    </div>
+		    
+		</template>
+
+	    <div id="input" class="item" placeholder="List Item">
+	    	<div class="text">
+	    		<div contentEditable tabindex="0"></div>
+	    	</div>
+	    	<div class="placeholder">List Item</div>
+	    </div>
+	</template>
+	<script>
+		Polymer({
+			is: 't-data-feeder',
+
+			properties: {
+				data: {
+				    type: Array,
+				    value: function() {
+				        return ['Service bike', 'Submit form'];
+				    }
+				}
+			},
+
+			// listeners: {
+			// 	'keydown': 'handleKeys'
+			// },
+
+			attached: function() {
+				this.$.input.querySelector('[contenteditable]').focus()
+			},
+
+			getItems: function() {
+				var items = this.querySelectorAll('[contenteditable]');
+
+				items = Array.prototype.slice.call(items);
+
+				return items;
+			},
+
+			handleKeys: function(event) {
+				this.handleArrowKeys(event);
+				this.handleTextKeys(event);
+			},
+
+			handleArrowKeys: function(event) {
+				var items = this.getItems();
+				var itemIdx = items.indexOf(event.target);
+				var itemsCnt = items.length;
+				var lastIndex = itemsCnt - 1;
+
+				/* if down arrow pressed */
+				if (event.keyCode === 40 &&
+					itemIdx >= 0 &&
+					itemIdx < lastIndex){
+					/* focus next item */
+					items[itemIdx + 1].focus()
+				}
+				/* if up arrow pressed */
+				else if (event.keyCode === 38 &&
+					itemIdx > 0 &&
+					itemIdx <= lastIndex) {
+					/* focus previous item */
+					items[itemIdx - 1].focus()
+				}
+			},
+
+			handleTextKeys: function(event) {
+				var code = event.keyCode;
+				var inputItem = this.$.input.querySelector('[contenteditable');
+				var isAlphabet = code >= 65 && code <= 90;
+				var isNumeric = code >= 48 && code <= 57;
+				var specialChars = [
+					code === 188,
+					code >= 190 && code <= 192,
+					code >= 219 && code <= 222,
+					/* keys with incompatible keycodes on browsers */
+					code === 186 || code === 59,
+					code === 187 || code === 61,
+					code === 189 || code === 173,
+					/* num pad keys */
+					code >= 96 && code <= 111,
+				];
+				var isSpecialChar = specialChars.indexOf(true) > -1;
+
+				if ((isAlphabet ||
+					isNumeric ||
+					isSpecialChar) &&
+					event.target === inputItem) {
+					/* add new item */
+					this.push('data', inputItem.innerHTML);
+					/* focus the new item */
+					setTimeout(function () {
+						var items = this.getItems();
+
+						items[items.length - 2].focus();
+					}.bind(this), 0);
+				}
+			}
+		});
+	</script>
+</dom-module>
