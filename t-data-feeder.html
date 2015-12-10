@@ -60,7 +60,7 @@
 
         <template is="dom-repeat" items={{data}} index-as={{index}}>
             <div class="item">
-                <div class="text" contenteditable on-focus="moveCursorToEnd" tabindex="0" data-index="{{index}}">{{item}}</div>
+                <div class="text" contenteditable on-focus="moveCursorToEnd" tabindex="0" data-index="{{index}}">{{item.value}}</div>
                 <iron-icon icon="icons:cancel" tabindex="0" on-tap="deleteItem" data-index="{{index}}"></iron-icon>
             </div>
         </template>
@@ -136,12 +136,20 @@
                     var itemVal, newItemVal, item;
 
                     item = items[itemIdx];
-                    itemVal = this.get('data.' + itemIdx);
+                    /*
+                    We need to wrap the values in an object because of
+                    https://github.com/Polymer/polymer/issues/3062
+                     */
+                    itemVal = this.get('data.' + itemIdx).value;
 
                     newItemVal = item.textContent;
 
                     if (newItemVal !== itemVal) {
-                        this.set('data.' + itemIdx, newItemVal);
+                        /*
+                        We need to wrap the values in an object because of
+                        https://github.com/Polymer/polymer/issues/3062
+                         */
+                        this.set('data.' + itemIdx + '.value', newItemVal);
                     }
 
                     setTimeout(function() {
@@ -201,7 +209,11 @@
             pushNewData: function(event, inputItem) {
                 setTimeout(function () {
                     /* add new item */
-                    this.push('data', inputItem.textContent);
+                    /*
+                    We need to wrap the values in an object because of
+                    https://github.com/Polymer/polymer/issues/3062
+                     */
+                    this.push('data', {value: inputItem.textContent});
                     inputItem.textContent = '';
 
                     /* focus the new item */
@@ -227,7 +239,11 @@
                 if (itemIdx >= 0) {
                     items = this.getItems();
                     setTimeout(function () {
-                        this.splice('data', itemIdx + 1, 0, '');
+                        /*
+                        We need to wrap the values in an object because of
+                        https://github.com/Polymer/polymer/issues/3062
+                         */
+                        this.splice('data', itemIdx + 1, 0, {value: ''});
 
                         setTimeout(function() {
                             var items = this.getItems();
