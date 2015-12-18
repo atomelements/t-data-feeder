@@ -67,7 +67,7 @@
 
         <div on-tap="focusInput" class="item">
             <div id="input" class="text" contenteditable tabindex="0"></div>
-            <div class="placeholder">List Item</div>
+            <div class="placeholder">{{placeholder}}</div>
         </div>
     </template>
     <script>
@@ -81,6 +81,11 @@
                         return [];
                     },
                     notify: true
+                },
+
+                placeholder: {
+                    type: String,
+                    value: 'Add Item'
                 }
             },
 
